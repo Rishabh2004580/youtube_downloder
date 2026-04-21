@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="layout">
+    <div class="glow glow-left" aria-hidden="true"></div>
+    <div class="glow glow-right" aria-hidden="true"></div>
+
+    <section class="shell">
+        <article class="hero card">
+            <p class="eyebrow">Fast Local Save</p>
+            <h1>YouTube Downloader</h1>
+            <p class="subtitle">Paste a YouTube link, choose the output format, and save it directly into your downloads folder. This version uses single-file downloads, so ffmpeg is not required.</p>
+
+            <div class="features">
+                <div class="feature">
+                    <span class="feature-label">Format</span>
+                    <strong>Video or audio</strong>
+                </div>
+                <div class="feature">
+                    <span class="feature-label">Quality</span>
+                    <strong>Best, 1080p, 720p, 480p</strong>
+                </div>
+                <div class="feature">
+                    <span class="feature-label">Output</span>
+                    <strong>Saved locally, no ffmpeg merge</strong>
+                </div>
+            </div>
+        </article>
+
+        <section class="card form-card">
+            <form action="/download" method="POST" class="download-form" id="downloadForm">
+                <label class="field">
+                    <span>YouTube URL</span>
+                    <input
+                        id="url"
+                        type="url"
+                        name="url"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        value="{{ url_value }}"
+                        required
+                    >
+                </label>
+
+                <div class="grid">
+                    <label class="field">
+                        <span>Media Type</span>
+                        <select name="media_type" id="mediaType">
+                            <option value="video" {% if media_type == 'video' %}selected{% endif %}>Video</option>
+                            <option value="audio" {% if media_type == 'audio' %}selected{% endif %}>Audio</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>Quality</span>
+                        <select name="quality" id="quality">
+                            <option value="best" {% if quality == 'best' %}selected{% endif %}>Best</option>
+                            <option value="1080" {% if quality == '1080' %}selected{% endif %}>1080p</option>
+                            <option value="720" {% if quality == '720' %}selected{% endif %}>720p</option>
+                            <option value="480" {% if quality == '480' %}selected{% endif %}>480p</option>
+                        </select>
+                    </label>
+                </div>
+
+                <button id="submitBtn" type="submit">Download Now</button>
+            </form>
+
+            <p class="loading" id="loadingText" aria-live="polite">Downloading... keep this tab open.</p>
+
+            {% if message %}
+            <div class="status {{ message_type }}">{{ message }}</div>
+            {% endif %}
+
+            {% if download_file %}
+            <p class="download-link-wrap">
+                <a class="download-link" href="{{ url_for('serve_download', filename=download_file) }}">Download file: {{ download_file }}</a>
+            </p>
+            {% endif %}
+
+            <p class="hint">Supported links: youtube.com and youtu.be. Video quality depends on which single-file formats are available.</p>
+        </section>
+    </section>
+</main>
+
+<script>
+    const form = document.getElementById('downloadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingText = document.getElementById('loadingText');
+    const mediaType = document.getElementById('mediaType');
+    const quality = document.getElementById('quality');
+
+    function syncQualityState() {
+        const isAudio = mediaType.value === 'audio';
+        quality.disabled = isAudio;
+        quality.closest('.field').classList.toggle('disabled', isAudio);
+    }
+
+    syncQualityState();
+    mediaType.addEventListener('change', syncQualityState);
+
+    form.addEventListener('submit', function () {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Downloading...';
+        loadingText.classList.add('show');
+    });
+</script>
+</body>
+</html>

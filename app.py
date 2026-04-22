@@ -25,8 +25,13 @@ def build_format_string(media_type: str, quality: str) -> str:
 
 @app.route('/')
 def home():
+    return render_template('index.html')
+
+
+@app.route('/downloader')
+def downloader_page():
     return render_template(
-        'index.html',
+        'downloader.html',
         message=None,
         message_type=None,
         download_file=None,
@@ -55,7 +60,7 @@ def download():
 
     if not url:
         return render_template(
-            'index.html',
+            'downloader.html',
             message='Please paste a YouTube URL.',
             message_type='error',
             download_file=None,
@@ -66,7 +71,7 @@ def download():
 
     if 'youtube.com' not in url and 'youtu.be' not in url:
         return render_template(
-            'index.html',
+            'downloader.html',
             message='Please enter a valid YouTube link.',
             message_type='error',
             download_file=None,
@@ -92,7 +97,7 @@ def download():
             download_file = file_path.name if file_path.exists() else None
 
         return render_template(
-            'index.html',
+            'downloader.html',
             message=f'Download completed: {title}',
             message_type='success',
             download_file=download_file,
@@ -102,7 +107,7 @@ def download():
         )
     except Exception as e:
         return render_template(
-            'index.html',
+            'downloader.html',
             message=f'Download failed: {e}',
             message_type='error',
             download_file=None,
